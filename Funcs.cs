@@ -100,4 +100,20 @@ namespace Main.Tools
         string RunPartA(string[] inputData);
         string RunPartB(string[] inputData);
     }
+
+    public static class TupleExtensions
+    {
+        public static (int, int) Add(this (int, int) tuple1, (int, int) tuple2)
+        {
+            return (tuple1.Item1 + tuple2.Item1, tuple1.Item2 + tuple2.Item2);
+        }
+
+        public static (int, int) GetDirection(this (int, int) tuple)
+        {
+            int x = tuple.Item1;
+            int y = tuple.Item2;
+
+            return (x != 0 ? x / Math.Abs(x) : 0, y != 0 ? y / Math.Abs(y) : 0);
+        }
+    }
 }
