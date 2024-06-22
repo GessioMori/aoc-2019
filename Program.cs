@@ -1,10 +1,36 @@
-﻿namespace aoc_2019
+﻿using Main.Tools;
+using System.Diagnostics;
+
+namespace aoc_2019
 {
-    internal class Program
+    public static class Program
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
+            if (Funcs.ValidateArgs(args, out int dayToRun, out char exampleOrInputChoice, out char solutionPartChoice))
+            {
+                string filePath = (exampleOrInputChoice == 't')
+                    ? $"Examples/day{dayToRun}_example.txt"
+                    : $"Inputs/day{dayToRun}.txt";
+
+                Stopwatch sw = Stopwatch.StartNew();
+
+                if (exampleOrInputChoice == 't')
+                {
+                    Funcs.RunExampleAndCheck(Funcs.ReadFileToArray(filePath), solutionPartChoice, dayToRun);
+                }
+                else
+                {
+                    Funcs.RunSolution(Funcs.ReadFileToArray(filePath), solutionPartChoice, dayToRun);
+                }
+                sw.Stop();
+
+                Console.WriteLine($"Time taken: {sw.Elapsed.TotalMilliseconds} ms");
+            }
+            else
+            {
+                Console.WriteLine("Invalid input.");
+            }
         }
     }
 }
