@@ -2,7 +2,7 @@
   "profiles": {
     "aoc-2019": {
       "commandName": "Project",
-      "commandLineArgs": "5tb"
+      "commandLineArgs": "6tb"
     }
   }
 }
