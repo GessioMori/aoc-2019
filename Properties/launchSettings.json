@@ -2,7 +2,7 @@
   "profiles": {
     "aoc-2019": {
       "commandName": "Project",
-      "commandLineArgs": "5ia"
+      "commandLineArgs": "8ib"
     }
   }
 }
