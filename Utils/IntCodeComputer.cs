@@ -2,20 +2,21 @@
 {
     internal class IntCodeComputer
     {
-        private int currentPosition;
-        private int[] originalSequence;
-        private int[] currentSequence;
-        private int currentOutput;
+        private long currentPosition;
+        private long[] currentSequence;
+        private long currentOutput;
         private bool isHalted;
         private bool isPaused;
-        private List<int> inputs;
-        private List<int> originalInputs;
+        private List<long> inputs;
+        private List<long> originalInputs;
+        private long relativeBase;
 
-        public IntCodeComputer(int[] originalSequence)
+        public IntCodeComputer(long[] originalSequence)
         {
-            this.originalSequence = originalSequence;
-            this.currentSequence = (int[])originalSequence.Clone();
+            this.currentSequence = new long[originalSequence.Length + 10000];
+            Array.Copy(originalSequence, this.currentSequence, originalSequence.Length);
             this.currentPosition = 0;
+            this.relativeBase = 0;
             this.isHalted = false;
             this.isPaused = false;
             this.inputs = [];
@@ -28,7 +29,7 @@
             private set { this.isHalted = value; }
         }
 
-        public void SetInputs(int[] inputs)
+        public void SetInputs(long[] inputs)
         {
             this.inputs.Clear();
             this.inputs.AddRange(inputs);
@@ -42,20 +43,21 @@
             this.inputs.AddRange(this.originalInputs);
         }
 
-        public int Run()
+        public long Run()
         {
             this.isPaused = false;
 
             while (!this.isHalted && !this.isPaused)
             {
-                int opCode = this.currentSequence[this.currentPosition];
-                int instruction = GetInstructions(opCode, out bool pos1IsImmediate, out bool pos2IsImmediate);
+                long opCode = this.currentSequence[this.currentPosition];
+                int instruction = GetInstructions(opCode, out InstructionMode pos1Mode, 
+                    out InstructionMode pos2Mode, out InstructionMode pos3Mode);
 
                 if (instruction == 1 || instruction == 2)
                 {
-                    int arg1Value = GetValue(pos1IsImmediate, this.currentPosition + 1);
-                    int arg2Value = GetValue(pos2IsImmediate, this.currentPosition + 2);
-                    int resultPosition = this.currentSequence[this.currentPosition + 3];
+                    long arg1Value = GetValue(pos1Mode, this.currentPosition + 1);
+                    long arg2Value = GetValue(pos2Mode, this.currentPosition + 2);
+                    long resultPosition = GetPosition(pos3Mode, this.currentPosition + 3);
 
                     if (instruction == 1)
                     {
@@ -68,35 +70,31 @@
 
                     this.currentPosition += 4;
                 }
-                else if (instruction == 3 || instruction == 4)
+                else if (instruction == 3)
                 {
-                    int resultPosition = this.currentSequence[this.currentPosition + 1];
-
-                    if (instruction == 3)
+                    long resultPosition = GetPosition(pos1Mode, this.currentPosition + 1);
+                    long currentInput = this.inputs[0];
+                    this.inputs.RemoveAt(0);
+                    this.currentSequence[resultPosition] = currentInput;
+                    this.currentPosition += 2;
+                }
+                else if (instruction == 4)
+                {
+                    this.currentOutput = GetValue(pos1Mode, this.currentPosition + 1);
+                    if (this.currentOutput != 0)
                     {
-                        int currentInput = this.inputs[0];
-                        this.inputs.RemoveAt(0);
-                        this.currentSequence[resultPosition] = currentInput;
+                        this.isPaused = true;
                     }
-                    else if (instruction == 4)
+                    else
                     {
-                        this.currentOutput = this.currentSequence[resultPosition];
-                        if (this.currentOutput != 0)
-                        {
-                            this.isPaused = true;
-                        }
-                        else
-                        {
-                            this.RestoreInputs();
-                        }
+                        this.RestoreInputs();
                     }
-
                     this.currentPosition += 2;
                 }
                 else if (instruction == 5 || instruction == 6)
                 {
-                    int arg1Value = GetValue(pos1IsImmediate, this.currentPosition + 1);
-                    int arg2Value = GetValue(pos2IsImmediate, this.currentPosition + 2);
+                    long arg1Value = GetValue(pos1Mode, this.currentPosition + 1);
+                    long arg2Value = GetValue(pos2Mode, this.currentPosition + 2);
 
                     if ((instruction == 5 && arg1Value != 0) || (instruction == 6 && arg1Value == 0))
                     {
@@ -109,9 +107,9 @@
                 }
                 else if (instruction == 7 || instruction == 8)
                 {
-                    int arg1Value = GetValue(pos1IsImmediate, this.currentPosition + 1);
-                    int arg2Value = GetValue(pos2IsImmediate, this.currentPosition + 2);
-                    int resultPosition = this.currentSequence[this.currentPosition + 3];
+                    long arg1Value = GetValue(pos1Mode, this.currentPosition + 1);
+                    long arg2Value = GetValue(pos2Mode, this.currentPosition + 2);
+                    long resultPosition = this.GetPosition(pos3Mode, this.currentPosition + 3);
 
                     if (instruction == 7)
                     {
@@ -123,6 +121,12 @@
                     }
 
                     this.currentPosition += 4;
+                }
+                else if (instruction == 9)
+                {
+                    long arg1Value = GetValue(pos1Mode, this.currentPosition + 1);
+                    this.relativeBase += arg1Value;
+                    this.currentPosition += 2;
                 }
 
                 opCode = this.currentSequence[this.currentPosition];
@@ -136,15 +140,42 @@
             return this.currentOutput;
         }
 
-        private int GetValue(bool isImmediate, int position)
+        private long GetValue(InstructionMode instructionMode, long position)
         {
-            return isImmediate ? this.currentSequence[position] : this.currentSequence[this.currentSequence[position]];
+            switch (instructionMode)
+            {
+                case InstructionMode.PositionalMode:
+                    return this.currentSequence[this.currentSequence[position]];
+                case InstructionMode.ImmediateMode:
+                    return this.currentSequence[position];
+                case InstructionMode.RelativeMode:
+                    return this.currentSequence[this.currentSequence[position] + this.relativeBase];
+            }
+
+            return this.currentSequence[position];
         }
 
-        private int GetInstructions(int opCode, out bool pos1IsImmediate, out bool pos2IsImmediate)
+        private long GetPosition(InstructionMode instructionMode, long position)
         {
-            pos1IsImmediate = false;
-            pos2IsImmediate = false;
+            switch (instructionMode)
+            {
+                case InstructionMode.PositionalMode:
+                    return this.currentSequence[position];
+                case InstructionMode.ImmediateMode:
+                    return position;
+                case InstructionMode.RelativeMode:
+                    return this.currentSequence[position] + this.relativeBase;
+            }
+
+            return this.currentSequence[position];
+        }
+
+        private int GetInstructions(long opCode, out InstructionMode pos1Mode, out InstructionMode pos2Mode, out InstructionMode pos3Mode)
+        {
+            pos1Mode = InstructionMode.PositionalMode;
+            pos2Mode = InstructionMode.PositionalMode;
+            pos3Mode = InstructionMode.PositionalMode;
+
             int instruction = 0;
 
             int[] digits = opCode.ToString()
@@ -157,14 +188,25 @@
 
             if (digits.Length >= 3)
             {
-                pos1IsImmediate = digits[2] == 1;
+                pos1Mode = (InstructionMode)Enum.ToObject(typeof(InstructionMode), digits[2]);
             }
             if (digits.Length >= 4)
             {
-                pos2IsImmediate = digits[3] == 1;
+                pos2Mode = (InstructionMode)Enum.ToObject(typeof(InstructionMode), digits[3]);
+            }
+            if(digits.Length >= 5)
+            {
+                pos3Mode = (InstructionMode)Enum.ToObject(typeof(InstructionMode), digits[4]);
             }
 
             return instruction;
+        }
+
+        private enum InstructionMode
+        {
+            PositionalMode = 0,
+            ImmediateMode = 1,
+            RelativeMode = 2,
         }
     }
 }

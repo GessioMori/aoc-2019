@@ -8,15 +8,15 @@ namespace Main.Solutions
         public string RunPartA(string[] inputData)
         {
             List<int[]> permutations = GetPermutations([0, 1, 2, 3, 4]);
-            int largestOutputSignal = int.MinValue;
+            long largestOutputSignal = int.MinValue;
 
             foreach (int[] permSignal in permutations)
             {
-                int currentInput = 0;
+                long currentInput = 0;
 
                 foreach (int signal in permSignal)
                 {
-                    int[] numbers = inputData[0].Split(',').Select(int.Parse).ToArray();
+                    long[] numbers = inputData[0].Split(',').Select(long.Parse).ToArray();
 
                     IntCodeComputer intCodeComputer = new(numbers);
                     intCodeComputer.SetInputs([signal, currentInput]);
@@ -36,14 +36,14 @@ namespace Main.Solutions
         public string RunPartB(string[] inputData)
         {
             List<int[]> phasePermutations = GetPermutations([5, 6, 7, 8, 9]);
-            int largestOutputSignal = int.MinValue;
-            int[] numbers = inputData[0].Split(',').Select(int.Parse).ToArray();
+            long largestOutputSignal = int.MinValue;
+            long[] numbers = inputData[0].Split(',').Select(long.Parse).ToArray();
 
             foreach (int[] phaseNumbers in phasePermutations)
             {
-                int currentInput = 0;
+                long currentInput = 0;
 
-                List<IntCodeComputer> computers = phaseNumbers.Select(_ => new IntCodeComputer((int[])numbers.Clone())).ToList();
+                List<IntCodeComputer> computers = phaseNumbers.Select(_ => new IntCodeComputer((long[])numbers.Clone())).ToList();
 
                 bool isFirstLoop = true;
 

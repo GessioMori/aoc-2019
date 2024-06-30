@@ -5,7 +5,7 @@ namespace aoc_2019
 {
     public static class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             if (Funcs.ValidateArgs(args, out int dayToRun, out char exampleOrInputChoice, out char solutionPartChoice))
             {

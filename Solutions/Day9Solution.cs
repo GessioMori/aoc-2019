@@ -3,7 +3,7 @@ using Main.Tools;
 
 namespace Main.Solutions
 {
-    public class Day5Solution : ISolution
+    public class Day9Solution : ISolution
     {
         public string RunPartA(string[] inputData)
         {
@@ -32,7 +32,7 @@ namespace Main.Solutions
 
             while (!intCodeComputer.IsHalted)
             {
-                intCodeComputer.SetInputs([5]);
+                intCodeComputer.SetInputs([2]);
                 result = intCodeComputer.Run();
             }
 
