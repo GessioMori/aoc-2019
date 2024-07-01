@@ -115,5 +115,15 @@ namespace Main.Tools
 
             return (x != 0 ? x / Math.Abs(x) : 0, y != 0 ? y / Math.Abs(y) : 0);
         }
+
+        public static bool Equals(this (int, int) tuple1, (int, int) tuple2)
+        {
+            return tuple1.Item1 == tuple2.Item1 && tuple1.Item2 == tuple2.Item2;
+        }
+
+        public static double Distance(this (int, int) tuple1, (int, int) tuple2)
+        {
+            return Math.Sqrt(Math.Pow(tuple1.Item1 - tuple2.Item1, 2) + Math.Pow(tuple1.Item2 - tuple2.Item2, 2));
+        }
     }
 }
