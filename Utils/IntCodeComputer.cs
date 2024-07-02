@@ -43,7 +43,7 @@
             this.inputs.AddRange(this.originalInputs);
         }
 
-        public long Run()
+        public long Run(bool returnOnZero = false)
         {
             this.isPaused = false;
 
@@ -81,7 +81,7 @@
                 else if (instruction == 4)
                 {
                     this.currentOutput = GetValue(pos1Mode, this.currentPosition + 1);
-                    if (this.currentOutput != 0)
+                    if (this.currentOutput != 0 || returnOnZero)
                     {
                         this.isPaused = true;
                     }

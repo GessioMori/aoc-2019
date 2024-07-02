@@ -56,7 +56,6 @@ namespace Main.Solutions
 
             int result = clearedAsteroids[199].Item1 * 100 + clearedAsteroids[199].Item2;
 
-
             return result.ToString();
         }
 

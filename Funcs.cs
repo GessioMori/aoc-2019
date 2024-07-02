@@ -108,6 +108,11 @@ namespace Main.Tools
             return (tuple1.Item1 + tuple2.Item1, tuple1.Item2 + tuple2.Item2);
         }
 
+        public static (double, double) Add(this (double, double) tuple1, (double, double) tuple2)
+        {
+            return (tuple1.Item1 + tuple2.Item1, tuple1.Item2 + tuple2.Item2);
+        }
+
         public static (int, int) GetDirection(this (int, int) tuple)
         {
             int x = tuple.Item1;
@@ -124,6 +129,12 @@ namespace Main.Tools
         public static double Distance(this (int, int) tuple1, (int, int) tuple2)
         {
             return Math.Sqrt(Math.Pow(tuple1.Item1 - tuple2.Item1, 2) + Math.Pow(tuple1.Item2 - tuple2.Item2, 2));
+        }
+
+        public static (double, double) Rotate(this (double, double) tuple, double angle)
+        {
+            return (tuple.Item1 * Math.Cos(angle) - tuple.Item2 * Math.Sin(angle),
+                tuple.Item1 * Math.Sin(angle) + tuple.Item2 * Math.Cos(angle));
         }
     }
 }
