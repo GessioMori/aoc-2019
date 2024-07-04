@@ -161,4 +161,29 @@ namespace Main.Tools
                 tuple.Item1 * Math.Sin(angle) + tuple.Item2 * Math.Cos(angle));
         }
     }
+
+    class ListComparer : IEqualityComparer<List<string>>
+    {
+        public bool Equals(List<string>? x, List<string>? y)
+        {
+            if (x == null || y == null) return false;
+            if (x.Count != y.Count) return false;
+
+            for (int i = 0; i < x.Count; i++)
+            {
+                if (x[i] != y[i]) return false;
+            }
+            return true;
+        }
+
+        public int GetHashCode(List<string> obj)
+        {
+            int hash = 19;
+            foreach (var item in obj)
+            {
+                hash = hash * 31 + (item == null ? 0 : item.GetHashCode());
+            }
+            return hash;
+        }
+    }
 }
