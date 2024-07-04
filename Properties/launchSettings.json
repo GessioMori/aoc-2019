@@ -2,7 +2,7 @@
   "profiles": {
     "aoc-2019": {
       "commandName": "Project",
-      "commandLineArgs": "15ib"
+      "commandLineArgs": "16ib"
     }
   }
 }
